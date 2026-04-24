@@ -6,12 +6,15 @@ import { ChangeEvent, useRef } from "react";
 interface FileUploadProps extends React.HTMLAttributes<HTMLDivElement> {
   onFileChange: (file: File) => void;
   accept?: string;
+  /** 모바일 등에서 카메라 앱을 우선 열 때 사용 (예: 영수증 촬영) */
+  capture?: "environment" | "user";
 }
 
 export function FileUpload({
   className,
   onFileChange,
   accept = "image/*",
+  capture,
   children,
   ...props
 }: FileUploadProps) {
@@ -26,6 +29,7 @@ export function FileUpload({
     if (file) {
       onFileChange(file);
     }
+    e.target.value = "";
   };
 
   return (
@@ -42,6 +46,7 @@ export function FileUpload({
         ref={inputRef}
         onChange={handleChange}
         accept={accept}
+        {...(capture ? { capture } : {})}
         className="hidden"
       />
       {children}

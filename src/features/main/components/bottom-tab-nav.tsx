@@ -27,7 +27,7 @@ export function BottomTabNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 bg-white border-t border-gray-200">
+    <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-[430px] -translate-x-1/2 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom,0px)]">
       <div className="flex items-stretch h-16">
         {TAB_ITEMS.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href;
