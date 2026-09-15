@@ -63,6 +63,7 @@ export default function MenuPage() {
   const companyCode = useAuthStore((s) => s.user?.companyCode ?? "");
   const empCode     = useAuthStore((s) => s.user?.emp_code ?? "");
   const userId      = useAuthStore((s) => s.user?.user_id || s.user?.emp_code || "");
+  const userType    = useAuthStore((s) => s.user?.user_type ?? "U");
   const companyName = useAuthStore((s) => s.user?.corp_name);
 
   const storeItems = useMenuStore((s) => s.items);
@@ -82,11 +83,7 @@ export default function MenuPage() {
       setDbLoaded(true);
       return;
     }
-    if (storeItems.length > 0) {
-      setDbLoaded(true);
-      return;
-    }
-    const params = new URLSearchParams({ companyCode, userId, userType: "U" });
+    const params = new URLSearchParams({ companyCode, userId, userType });
     fetch(`/api/menu-visibility?${params.toString()}`)
       .then((r) => r.json())
       .then((data: { items: MenuDBItem[] | null; perms?: Record<string, { view: boolean; add: boolean; edit: boolean; del: boolean; approve: boolean }> }) => {

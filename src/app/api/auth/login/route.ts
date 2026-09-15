@@ -24,6 +24,8 @@ interface EmpInfoApiResponse {
     emp_name: string;
     email?: string;
     user_id?: string;
+    user_type?: string;
+    mobile_flag?: string;
   }>;
 }
 
@@ -99,7 +101,17 @@ export async function POST(request: NextRequest) {
     emp_name,
     email,
     user_id,
+    user_type,
+    mobile_flag,
   } = empInfoData.items[0];
+
+  const isSystemAdmin = (user_type ?? "").toUpperCase() === "S";
+  if (!isSystemAdmin && (mobile_flag ?? "").toUpperCase() !== "Y") {
+    return NextResponse.json(
+      { error: "모바일 앱 사용 권한이 없습니다." },
+      { status: 403 },
+    );
+  }
 
   const resolvedEmail = (email ?? "").trim();
 
@@ -125,5 +137,6 @@ export async function POST(request: NextRequest) {
     emp_name,
     email: resolvedEmail,
     user_id: user_id ?? "",
+    user_type: user_type ?? "",
   });
 }
