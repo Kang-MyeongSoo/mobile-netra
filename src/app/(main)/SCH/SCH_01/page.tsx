@@ -117,9 +117,9 @@ function SchDatePickerField({
 /* ──────────── 시간 파싱 유틸 ──────────── */
 function parseTimeToAmPm(val: string): { period: "AM" | "PM"; hour: number } | null {
   if (!val) return null;
-  const amPmMatch = val.match(/^(AM|PM)\s+(\d{1,2})$/);
+  const amPmMatch = val.match(/^(AM|PM|am|pm)\s+(\d{1,2})(?::\d{2})?$/);
   if (amPmMatch) {
-    const period = amPmMatch[1] as "AM" | "PM";
+    const period = amPmMatch[1].toUpperCase() as "AM" | "PM";
     const hour = parseInt(amPmMatch[2], 10);
     if (hour >= 1 && hour <= 12) return { period, hour };
   }
@@ -148,8 +148,8 @@ function TimePickerField({ value, onChange }: { value: string; onChange: (v: str
   const period = parsed?.period ?? "AM";
   const hour = parsed?.hour ?? 9;
 
-  function setPeriod(p: "AM" | "PM") { onChange(`${p} ${String(hour).padStart(2, "0")}`); }
-  function setHour(h: number) { onChange(`${period} ${String(h).padStart(2, "0")}`); }
+  function setPeriod(p: "AM" | "PM") { onChange(`${p.toLowerCase()} ${String(hour).padStart(2, "0")}:00`); }
+  function setHour(h: number) { onChange(`${period.toLowerCase()} ${String(h).padStart(2, "0")}:00`); }
 
   return (
     <div className="h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 flex items-center gap-2">
@@ -182,7 +182,7 @@ function TimePickerField({ value, onChange }: { value: string; onChange: (v: str
       ) : (
         <button
           type="button"
-          onClick={() => onChange("AM 09")}
+          onClick={() => onChange("am 09:00")}
           className="text-sm text-gray-400 flex-1 text-left"
         >
           시작 시간 선택 (선택사항)
@@ -340,7 +340,8 @@ export default function ScheduleRegisterPage() {
   }
 
   async function handleSave() {
-    const { scd_name, beg_date, end_date, scd_time, scd_remark } = form;
+    const { scd_name, beg_date, end_date, scd_remark } = form;
+    const scd_time = form.scd_time.replace(/^(am|pm)\s+(\d{2})$/, "$1 $2:00");
     if (!scd_name.trim()) { setFormError("일정명을 입력해주세요."); return; }
     if ([...scd_name].length > 50) { setFormError("일정명은 50글자 이내로 작성해주세요."); return; }
     if (!beg_date) { setFormError("시작일을 입력해주세요."); return; }

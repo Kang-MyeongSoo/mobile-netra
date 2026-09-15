@@ -27,16 +27,16 @@ const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"] as cons
 
 function formatTimeAmPm(val: string): string {
   if (!val) return "";
-  const amPm = val.match(/^(AM|PM)\s+(\d{1,2})$/);
-  if (amPm) return `${amPm[1]} ${amPm[2].padStart(2, "0")}:00`;
+  const amPm = val.match(/^(AM|PM)\s+(\d{1,2})(?::\d{2})?$/);
+  if (amPm) return `${amPm[1].toLowerCase()} ${amPm[2].padStart(2, "0")}:00`;
   const hhmm = val.match(/^(\d{1,2}):(\d{2})$/);
   if (hhmm) {
     let h = parseInt(hhmm[1], 10);
     const min = hhmm[2];
-    if (h === 0) return `AM 12:${min}`;
-    if (h < 12) return `AM ${String(h).padStart(2, "0")}:${min}`;
-    if (h === 12) return `PM 12:${min}`;
-    return `PM ${String(h - 12).padStart(2, "0")}:${min}`;
+    if (h === 0) return `am 12:${min}`;
+    if (h < 12) return `am ${String(h).padStart(2, "0")}:${min}`;
+    if (h === 12) return `pm 12:${min}`;
+    return `pm ${String(h - 12).padStart(2, "0")}:${min}`;
   }
   return val;
 }
