@@ -83,6 +83,10 @@ export default function MenuPage() {
       setDbLoaded(true);
       return;
     }
+    if (storeItems.length > 0) {
+      setDbLoaded(true);
+      return;
+    }
     const params = new URLSearchParams({ companyCode, userId, userType });
     fetch(`/api/menu-visibility?${params.toString()}`)
       .then((r) => r.json())
@@ -94,7 +98,7 @@ export default function MenuPage() {
       })
       .catch(() => { setDbLoaded(true); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyCode, empCode]);
+  }, [companyCode, empCode, userType]);
 
   const sections = useMemo((): Section[] => {
     if (!dbLoaded) return [];

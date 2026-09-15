@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { User, Building2, LogOut, Type, IdCard, Atom } from "lucide-react";
 import { useAuthStore } from "@/features/auth/hooks/use-auth-store";
+import { useMenuStore } from "@/features/menu/use-menu-store";
 import { Button } from "@/components/ui/button";
 import {
   useFontSizeStore,
@@ -15,10 +16,12 @@ export default function ProfilePage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const clearMenu = useMenuStore((s) => s.clear);
   const fontSize = useFontSizeStore((s) => s.fontSize);
   const setFontSize = useFontSizeStore((s) => s.setFontSize);
 
   const handleLogout = () => {
+    clearMenu();
     logout();
     router.replace("/login");
   };
