@@ -6,6 +6,7 @@ interface MenuStore {
   perms: Record<string, MenuPerm>;
   setItems: (items: MenuDBItem[]) => void;
   setPerms: (perms: Record<string, MenuPerm>) => void;
+  clear: () => void;
 }
 
 export const useMenuStore = create<MenuStore>((set) => ({
@@ -13,6 +14,7 @@ export const useMenuStore = create<MenuStore>((set) => ({
   perms: {},
   setItems: (items) => set({ items }),
   setPerms: (perms) => set({ perms }),
+  clear: () => set({ items: [], perms: {} }),
 }));
 
 export function useMenuTitle(menuId: string, fallback: string): string {

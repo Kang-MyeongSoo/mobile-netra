@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User, Building2, LogOut, Type, IdCard, Atom, BellOff, Bell, Minus, Plus } from "lucide-react";
 import { useAuthStore } from "@/features/auth/hooks/use-auth-store";
+import { useMenuStore } from "@/features/menu/use-menu-store";
 import { Button } from "@/components/ui/button";
 import {
   useFontSizeStore,
@@ -103,6 +104,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const clearMenu = useMenuStore((s) => s.clear);
   const fontSize = useFontSizeStore((s) => s.fontSize);
   const setFontSize = useFontSizeStore((s) => s.setFontSize);
 
@@ -190,8 +192,8 @@ export default function ProfilePage() {
   }, [user?.emp_code, user?.corp_code, setQuietHours]);
 
   const handleLogout = () => {
+    clearMenu();
     logout();
-    // 전체 리로드로 JS 상태 완전 초기화 (청크 캐시 문제도 해결)
     window.location.href = "/login";
   };
 

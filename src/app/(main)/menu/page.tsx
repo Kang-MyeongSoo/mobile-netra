@@ -4,20 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   LayoutGrid,
-  TicketsPlane,
-  NotepadText,
-  CalendarCheck,
-  CalendarSearch,
-  CalendarPlus,
-  Wallet,
   CalendarDays,
+  Wallet,
+  HardHat,
   ChevronDown,
   ChevronUp,
-  HardHat,
-  UserPlus,
   CheckCircle2,
-  Settings,
-  ClipboardList,
+  FilePen,
+  Search,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/features/auth/hooks/use-auth-store";
@@ -27,29 +22,14 @@ import type { MenuDBItem } from "@/app/api/menu-visibility/route";
 
 // ─── 아이콘 매핑 (DB menu_id 기준) ──────────────────────────────────────────
 
-const MENU_ID_ICON_MAP: Record<string, LucideIcon> = {
-  // 연차/휴가 자식
-  LEAVE_01: TicketsPlane,
-  LEAVE_02: CalendarCheck,
-  LEAVE_03: NotepadText,
-  LEAVE_04: CalendarSearch,
-  // 지출결의 자식
-  EXP_01: Wallet,
-  EXP_02: NotepadText,
-  // 일용직 자식
-  DAILY_01: HardHat,
-  DAILY_02: UserPlus,
-  // 일정관리 자식
-  SCH_01: CalendarPlus,
-  SCH_02: CalendarSearch,
-  // 승인 관리
-  APVMNG_01: ClipboardList,
-  APVMNG_02: Settings,
-  APVMNG_03: ClipboardList,
+const FILE_TYPE_ICON_MAP: Record<string, LucideIcon> = {
+  "1": FilePen,        // 입력폼
+  "2": Search,         // 조회
+  "3": ClipboardCheck, // 처리
 };
 
-function menuItemIcon(menuId: string): LucideIcon {
-  return MENU_ID_ICON_MAP[menuId] ?? NotepadText;
+function menuItemIcon(fileType?: string | null): LucideIcon {
+  return FILE_TYPE_ICON_MAP[fileType ?? ""] ?? FilePen;
 }
 
 // 부모 그룹 아이콘: menu_id 기준
@@ -172,7 +152,7 @@ export default function MenuPage() {
             items: children.map((c) => ({
               key: c.menu_id,
               title: c.menu_name,
-              icon: menuItemIcon(c.menu_id),
+              icon: menuItemIcon(c.menu_file_type),
               href: `/${parent.menu_id}/${c.menu_id}`,
             })),
           };
@@ -192,7 +172,13 @@ export default function MenuPage() {
         }
         grouped.get(pid)!.push(item);
       }
+      const labelKeys = Object.keys(PARENT_LABEL_MAP);
       dbSections = pidOrder
+        .sort((a, b) => {
+          const ai = labelKeys.indexOf(a);
+          const bi = labelKeys.indexOf(b);
+          return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+        })
         .map((pid) => ({
           key: pid,
           label: PARENT_LABEL_MAP[pid] ?? pid,
@@ -202,7 +188,7 @@ export default function MenuPage() {
             .map((c) => ({
               key: c.menu_id,
               title: c.menu_name,
-              icon: menuItemIcon(c.menu_id),
+              icon: menuItemIcon(c.menu_file_type),
               href: `/${pid}/${c.menu_id}`,
             })),
         }))

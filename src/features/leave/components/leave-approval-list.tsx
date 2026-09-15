@@ -7,6 +7,7 @@ import { ko } from 'date-fns/locale';
 import { AlertCircle, Loader2, RefreshCw, User, Building2, LogOut, CalendarRange } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/features/auth/hooks/use-auth-store';
+import { useMenuStore } from '@/features/menu/use-menu-store';
 import { fetchApprovalList, approveLeave, ApprovalListItem, ApproveItem } from '@/features/leave/api';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ type ActionType = 'approve' | 'cancel';
 export function LeaveApprovalList({ canApprove }: { canApprove: boolean }) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const clearMenu = useMenuStore((s) => s.clear);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -88,6 +90,7 @@ export function LeaveApprovalList({ canApprove }: { canApprove: boolean }) {
   });
 
   const handleRelogin = () => {
+    clearMenu();
     logout();
     router.replace('/login');
   };

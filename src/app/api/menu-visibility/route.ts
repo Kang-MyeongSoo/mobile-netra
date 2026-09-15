@@ -16,6 +16,7 @@ export interface MenuDBItem {
   menu_exec: string;
   menu_order: number;
   use_yn?: string;
+  menu_file_type?: string | null;
 }
 
 interface MenuApiResponse {
@@ -113,8 +114,9 @@ export async function GET(request: NextRequest) {
       menu_pid:   r.menu_pid != null && r.menu_pid !== "NULL" ? String(r.menu_pid) : null,
       menu_name:  String(r.menu_name ?? ""),
       menu_exec:  String(r.menu_exec ?? ""),
-      menu_order: Number(r.menu_order ?? 99),
-      use_yn:     r.use_yn != null ? String(r.use_yn) : undefined,
+      menu_order:      Number(r.menu_order ?? 99),
+      use_yn:          r.use_yn != null ? String(r.use_yn) : undefined,
+      menu_file_type:  r.menu_file_type != null ? String(r.menu_file_type) : null,
     } as MenuDBItem;
   });
 
