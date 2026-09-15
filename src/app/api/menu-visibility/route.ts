@@ -15,6 +15,7 @@ export interface MenuDBItem {
   menu_exec: string;
   menu_order: number;
   use_yn?: string;
+  menu_input_type?: string | null;
 }
 
 interface MenuApiResponse {
@@ -100,12 +101,13 @@ export async function GET(request: NextRequest) {
   menuData.items = (menuData.items as unknown as Record<string, unknown>[]).map((raw) => {
     const r = normRow(raw);
     return {
-      menu_id:    String(r.menu_id ?? ""),
-      menu_pid:   r.menu_pid != null && r.menu_pid !== "NULL" ? String(r.menu_pid) : null,
-      menu_name:  String(r.menu_name ?? ""),
-      menu_exec:  String(r.menu_exec ?? ""),
-      menu_order: Number(r.menu_order ?? 99),
-      use_yn:     r.use_yn != null ? String(r.use_yn) : undefined,
+      menu_id:         String(r.menu_id ?? ""),
+      menu_pid:        r.menu_pid != null && r.menu_pid !== "NULL" ? String(r.menu_pid) : null,
+      menu_name:       String(r.menu_name ?? ""),
+      menu_exec:       String(r.menu_exec ?? ""),
+      menu_order:      Number(r.menu_order ?? 99),
+      use_yn:          r.use_yn != null ? String(r.use_yn) : undefined,
+      menu_input_type: r.menu_input_type != null ? String(r.menu_input_type) : null,
     } as MenuDBItem;
   });
 

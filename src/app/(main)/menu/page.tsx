@@ -4,34 +4,24 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   LayoutGrid,
-  TicketsPlane,
-  NotepadText,
-  CalendarCheck,
-  CalendarSearch,
-  CalendarPlus,
-  Wallet,
   CalendarDays,
+  Wallet,
+  HardHat,
   ChevronDown,
   ChevronUp,
-  HardHat,
-  UserPlus,
+  FilePen,
+  Search,
+  ClipboardCheck,
   type LucideIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/features/auth/hooks/use-auth-store";
 import { useMenuStore } from "@/features/menu/use-menu-store";
 import type { MenuDBItem } from "@/app/api/menu-visibility/route";
 
-const MENU_ID_ICON_MAP: Record<string, LucideIcon> = {
-  LEAVE_01: TicketsPlane,
-  LEAVE_02: CalendarCheck,
-  LEAVE_03: NotepadText,
-  LEAVE_04: CalendarSearch,
-  EXP_01: Wallet,
-  EXP_02: NotepadText,
-  DAILY_01: HardHat,
-  DAILY_02: UserPlus,
-  SCH_01: CalendarPlus,
-  SCH_02: CalendarSearch,
+const INPUT_TYPE_ICON_MAP: Record<string, LucideIcon> = {
+  "1": FilePen,       // 입력
+  "2": Search,        // 조회
+  "3": ClipboardCheck, // 처리
 };
 
 const GROUP_ICON_MAP: Record<string, LucideIcon> = {
@@ -52,8 +42,8 @@ const PARENT_LABEL_MAP: Record<string, string> = {
   MOBILE_D: "승인관리",
 };
 
-function menuItemIcon(menuId: string): LucideIcon {
-  return MENU_ID_ICON_MAP[menuId] ?? NotepadText;
+function menuItemIcon(inputType?: string | null): LucideIcon {
+  return INPUT_TYPE_ICON_MAP[inputType ?? ""] ?? FilePen;
 }
 function groupIcon(menuId: string): LucideIcon {
   return GROUP_ICON_MAP[menuId] ?? LayoutGrid;
@@ -149,7 +139,7 @@ export default function MenuPage() {
             items: children.map((c) => ({
               key: c.menu_id,
               title: c.menu_name,
-              icon: menuItemIcon(c.menu_id),
+              icon: menuItemIcon(c.menu_input_type),
               href: c.menu_exec ? `/${c.menu_exec}` : `/${parent.menu_id}/${c.menu_id}`,
             })),
           };
@@ -184,7 +174,7 @@ export default function MenuPage() {
             .map((c) => ({
               key: c.menu_id,
               title: c.menu_name,
-              icon: menuItemIcon(c.menu_id),
+              icon: menuItemIcon(c.menu_input_type),
               href: c.menu_exec ? `/${c.menu_exec}` : `/${pid}/${c.menu_id}`,
             })),
         }))
