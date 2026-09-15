@@ -16,6 +16,8 @@ export interface AuthUser {
   manage_dpt_names: string;
   emp_code: string;
   emp_name: string;
+  user_id?: string;
+  user_type?: string;
 }
 
 interface AuthStore {
