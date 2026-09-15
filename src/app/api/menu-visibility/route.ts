@@ -128,13 +128,9 @@ export async function GET(request: NextRequest) {
 
   const permRows = (permData.items ?? []).map(normRow);
 
-  // 권한 row가 하나도 없으면 제한 없음 → 전체 메뉴 노출
+  // 권한 row가 하나도 없으면 접근 불가 → 빈 메뉴
   if (permRows.length === 0) {
-    const fullPerms: Record<string, MenuPerm> = {};
-    for (const m of menuData.items) {
-      fullPerms[m.menu_id] = { view: true, add: true, edit: true, del: true, approve: true };
-    }
-    return NextResponse.json({ items: menuData.items, perms: fullPerms });
+    return NextResponse.json({ items: [], perms: {} });
   }
 
   const perms: Record<string, MenuPerm> = {};
