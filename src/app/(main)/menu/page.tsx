@@ -43,11 +43,15 @@ const GROUP_ICON_MAP: Record<string, LucideIcon> = {
 
 // DB proc이 부모 항목을 반환하지 않을 때 사용하는 레이블 맵
 const PARENT_LABEL_MAP: Record<string, string> = {
-  LEAVE:  "연차/휴가",
-  EXP:    "지출결의",
-  DAILY:  "일용직 인사정보",
-  SCH:    "일정관리",
-  APVMNG: "승인 관리",
+  LEAVE:    "연차/휴가",
+  EXP:      "지출결의",
+  DAILY:    "일용직 인사정보",
+  SCH:      "일정관리",
+  APVMNG:   "승인 관리",
+  MOBILE_A: "일정 관리",
+  MOBILE_B: "연차/휴가",
+  MOBILE_C: "지출결의",
+  MOBILE_D: "승인관리",
 };
 
 function groupIcon(menuId: string): LucideIcon {
@@ -129,7 +133,8 @@ export default function MenuPage() {
     const dbItems = storeItems;
     if (dbItems.length === 0) return [];
 
-    const isParent = (m: MenuDBItem) => !m.menu_pid || m.menu_pid === "NULL";
+    const allPids = new Set(dbItems.map((m) => m.menu_pid).filter(Boolean));
+    const isParent = (m: MenuDBItem) => allPids.has(m.menu_id);
     const hasParents = dbItems.some(isParent);
 
     let dbSections: Section[];
@@ -153,7 +158,7 @@ export default function MenuPage() {
               key: c.menu_id,
               title: c.menu_name,
               icon: menuItemIcon(c.menu_file_type),
-              href: `/${parent.menu_id}/${c.menu_id}`,
+              href: c.menu_exec ? `/${c.menu_exec}` : `/${parent.menu_id}/${c.menu_id}`,
             })),
           };
         })
