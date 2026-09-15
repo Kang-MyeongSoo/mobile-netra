@@ -18,7 +18,7 @@ import { useAuthStore } from "@/features/auth/hooks/use-auth-store";
 import { useMenuStore } from "@/features/menu/use-menu-store";
 import type { MenuDBItem } from "@/app/api/menu-visibility/route";
 
-const INPUT_TYPE_ICON_MAP: Record<string, LucideIcon> = {
+const FILE_TYPE_ICON_MAP: Record<string, LucideIcon> = {
   "1": FilePen,       // 입력
   "2": Search,        // 조회
   "3": ClipboardCheck, // 처리
@@ -42,8 +42,8 @@ const PARENT_LABEL_MAP: Record<string, string> = {
   MOBILE_D: "승인관리",
 };
 
-function menuItemIcon(inputType?: string | null): LucideIcon {
-  return INPUT_TYPE_ICON_MAP[inputType ?? ""] ?? FilePen;
+function menuItemIcon(fileType?: string | null): LucideIcon {
+  return FILE_TYPE_ICON_MAP[fileType ?? ""] ?? FilePen;
 }
 function groupIcon(menuId: string): LucideIcon {
   return GROUP_ICON_MAP[menuId] ?? LayoutGrid;
@@ -139,7 +139,7 @@ export default function MenuPage() {
             items: children.map((c) => ({
               key: c.menu_id,
               title: c.menu_name,
-              icon: menuItemIcon(c.menu_input_type),
+              icon: menuItemIcon(c.menu_file_type),
               href: c.menu_exec ? `/${c.menu_exec}` : `/${parent.menu_id}/${c.menu_id}`,
             })),
           };
@@ -174,7 +174,7 @@ export default function MenuPage() {
             .map((c) => ({
               key: c.menu_id,
               title: c.menu_name,
-              icon: menuItemIcon(c.menu_input_type),
+              icon: menuItemIcon(c.menu_file_type),
               href: c.menu_exec ? `/${c.menu_exec}` : `/${pid}/${c.menu_id}`,
             })),
         }))
