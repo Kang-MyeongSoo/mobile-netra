@@ -32,6 +32,8 @@ interface AuthStore {
   quietHours: QuietHours;
   biometricRegisteredMap: Record<string, true>;
   deviceTokenMap: Record<string, true>;
+  lastLoginCompanyCode: string;
+  lastLoginPhoneNumber: string;
   login: (user: AuthUser) => void;
   logout: () => void;
   setQuietHours: (q: QuietHours) => void;
@@ -52,7 +54,9 @@ export const useAuthStore = create<AuthStore>()(
       quietHours: { enabled: false, start: '22:00', end: '07:00' },
       biometricRegisteredMap: {},
       deviceTokenMap: {},
-      login: (user) => set({ user }),
+      lastLoginCompanyCode: "",
+      lastLoginPhoneNumber: "",
+      login: (user) => set({ user, lastLoginCompanyCode: user.companyCode, lastLoginPhoneNumber: user.phoneNumber }),
       logout: () => set({ user: null, quietHours: { enabled: false, start: '22:00', end: '07:00' } }),
       setQuietHours: (q) => set({ quietHours: q }),
       isLoggedIn: () => get().user !== null,

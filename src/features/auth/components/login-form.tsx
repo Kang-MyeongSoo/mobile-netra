@@ -43,10 +43,12 @@ const getErr = (r: AnyResult): string =>
 
 export function LoginForm() {
   const router = useRouter();
-  const login         = useAuthStore((s) => s.login);
-  const setQuietHours = useAuthStore((s) => s.setQuietHours);
-  const hasDeviceRegistered = useAuthStore((s) => s.hasDeviceRegistered);
-  const registerDevice = useAuthStore((s) => s.registerDevice);
+  const login                 = useAuthStore((s) => s.login);
+  const setQuietHours         = useAuthStore((s) => s.setQuietHours);
+  const hasDeviceRegistered   = useAuthStore((s) => s.hasDeviceRegistered);
+  const registerDevice        = useAuthStore((s) => s.registerDevice);
+  const lastLoginCompanyCode  = useAuthStore((s) => s.lastLoginCompanyCode);
+  const lastLoginPhoneNumber  = useAuthStore((s) => s.lastLoginPhoneNumber);
 
   const [serverError, setServerError] = useState<string | null>(null);
   const [pendingAuth, setPendingAuth] = useState<PendingAuthContext | null>(null);
@@ -78,7 +80,13 @@ export function LoginForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      companyCode: lastLoginCompanyCode,
+      phoneNumber: lastLoginPhoneNumber,
+    },
+  });
 
   const completeLogin = (context: PendingAuthContext) => {
     const { emailVerificationEnabled: _ev, ...authFields } = context.userData;
@@ -123,6 +131,12 @@ export function LoginForm() {
 
     // SMS 인증 비활성화 사업장: OTP 없이 바로 로그인
     if (!result.data.sms_enabled) {
+      completeLogin(pending);
+      return;
+    }
+
+    // 이미 인증된 기기: OTP 건너뜀
+    if (hasDeviceRegistered(data.companyCode, data.phoneNumber)) {
       completeLogin(pending);
       return;
     }
