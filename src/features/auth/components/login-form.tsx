@@ -79,14 +79,22 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      companyCode: lastLoginCompanyCode,
-      phoneNumber: lastLoginPhoneNumber,
-    },
-  });
+  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("netra-auth");
+      if (raw) {
+        const parsed = JSON.parse(raw) as { state?: { lastLoginCompanyCode?: string; lastLoginPhoneNumber?: string } };
+        const cc = parsed?.state?.lastLoginCompanyCode ?? "";
+        const ph = parsed?.state?.lastLoginPhoneNumber ?? "";
+        if (cc || ph) reset({ companyCode: cc, phoneNumber: ph });
+      }
+    } catch { /* 무시 */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const completeLogin = (context: PendingAuthContext) => {
     const { emailVerificationEnabled: _ev, ...authFields } = context.userData;
