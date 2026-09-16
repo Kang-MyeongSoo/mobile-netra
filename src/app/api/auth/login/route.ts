@@ -67,7 +67,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { baseUrl } = resolved;
+  const { baseUrl, attribute1 } = resolved;
+  const sms_enabled = (attribute1 ?? "Y").toUpperCase() !== "N";
 
   const empInfoRes = await fetch(
     `${baseUrl}/R2JsonProc.asp?proc=usp_mobile_get_emp_info&param1=${encodeURIComponent(phoneNumber)}`,
@@ -138,5 +139,6 @@ export async function POST(request: NextRequest) {
     email: resolvedEmail,
     user_id: user_id ?? "",
     user_type: user_type ?? "",
+    sms_enabled,
   });
 }

@@ -236,7 +236,7 @@ export default function CalendarPage() {
   }, [filteredEvents, selectedDate]);
 
   const listTitle = selectedDate
-    ? format(new Date(`${selectedDate}T12:00:00`), "M월 d일 일정", { locale: ko })
+    ? format(new Date(`${selectedDate}T12:00:00`), "M월 d일 (E) 일정", { locale: ko })
     : format(currentMonth, "M월 일정", { locale: ko });
 
   return (

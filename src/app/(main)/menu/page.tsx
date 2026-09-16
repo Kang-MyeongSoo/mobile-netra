@@ -194,7 +194,7 @@ export default function MenuPage() {
               key: c.menu_id,
               title: c.menu_name,
               icon: menuItemIcon(c.menu_file_type),
-              href: `/${pid}/${c.menu_id}`,
+              href: c.menu_exec ? `/${c.menu_exec}` : `/${pid}/${c.menu_id}`,
             })),
         }))
         .filter((s) => s.items.length > 0);

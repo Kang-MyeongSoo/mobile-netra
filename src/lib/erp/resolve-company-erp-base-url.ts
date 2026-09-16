@@ -5,6 +5,7 @@ const DEFAULT_STALE_TIME_SECONDS = 3600;
 
 type SuccessCacheEntry = {
   baseUrl: string;
+  attribute1: string | null;
   expiresAt: number;
 };
 
@@ -22,40 +23,34 @@ function getStaleTimeMs(): number {
   return seconds * 1000;
 }
 
-function takeFreshSuccessCache(companyCode: string): string | null {
+function takeFreshSuccessCache(companyCode: string): SuccessCacheEntry | null {
   const entry = successCache.get(companyCode);
-  if (!entry) {
-    return null;
-  }
+  if (!entry) return null;
   if (entry.expiresAt <= Date.now()) {
     successCache.delete(companyCode);
     return null;
   }
-  return entry.baseUrl;
+  return entry;
 }
 
 function storeSuccessCache(
   companyCode: string,
   baseUrl: string,
+  attribute1: string | null,
   staleTimeMs: number,
 ): void {
-  if (staleTimeMs <= 0) {
-    return;
-  }
-  successCache.set(companyCode, {
-    baseUrl,
-    expiresAt: Date.now() + staleTimeMs,
-  });
+  if (staleTimeMs <= 0) return;
+  successCache.set(companyCode, { baseUrl, attribute1, expiresAt: Date.now() + staleTimeMs });
 }
 
 export type ErpBaseUrlGatewayResponse = {
   Flag: string;
   MSG: string;
-  items: Array<{ base_url: string }>;
+  items: Array<{ base_url: string; attribute1?: string }>;
 };
 
 export type ResolveCompanyErpBaseUrlResult =
-  | { status: "ok"; baseUrl: string }
+  | { status: "ok"; baseUrl: string; attribute1: string | null }
   | { status: "missing_gateway_env" }
   | {
       status: "fetch_failed";
@@ -96,7 +91,7 @@ export async function resolveCompanyErpBaseUrl(
   if (useSuccessCache) {
     const cached = takeFreshSuccessCache(normalizedCompanyCode);
     if (cached !== null) {
-      return { status: "ok", baseUrl: cached };
+      return { status: "ok", baseUrl: cached.baseUrl, attribute1: cached.attribute1 };
     }
   }
 
@@ -129,9 +124,11 @@ export async function resolveCompanyErpBaseUrl(
     return { status: "invalid_company" };
   }
 
+  const attribute1 = baseUrlData.items[0]?.attribute1 ?? null;
+
   if (useSuccessCache) {
-    storeSuccessCache(normalizedCompanyCode, baseUrl, staleTimeMs);
+    storeSuccessCache(normalizedCompanyCode, baseUrl, attribute1, staleTimeMs);
   }
 
-  return { status: "ok", baseUrl };
+  return { status: "ok", baseUrl, attribute1 };
 }

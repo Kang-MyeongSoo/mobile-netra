@@ -5,6 +5,8 @@ import {
   format,
   startOfMonth,
   endOfMonth,
+  startOfWeek,
+  endOfWeek,
   eachDayOfInterval,
   isSameDay,
   isSameMonth,
@@ -15,7 +17,7 @@ import {
   getMonth,
 } from "date-fns";
 import { ko } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, CalendarSearch, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarSearch } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -27,6 +29,22 @@ import type { CalScdItem } from "@/app/api/schedule/route";
 const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"] as const;
 
 function ymdNorm(s: string) { return s.replace(/-/g, ""); }
+
+function formatTimeAmPm(val: string): string {
+  if (!val) return "";
+  const amPm = val.match(/^(AM|PM)\s+(\d{1,2})(?::\d{2})?$/);
+  if (amPm) return `${amPm[1].toLowerCase()} ${amPm[2].padStart(2, "0")}:00`;
+  const hhmm = val.match(/^(\d{1,2}):(\d{2})$/);
+  if (hhmm) {
+    let h = parseInt(hhmm[1], 10);
+    const min = hhmm[2];
+    if (h === 0) return `am 12:${min}`;
+    if (h < 12) return `am ${String(h).padStart(2, "0")}:${min}`;
+    if (h === 12) return `pm 12:${min}`;
+    return `pm ${String(h - 12).padStart(2, "0")}:${min}`;
+  }
+  return val;
+}
 
 function ymdToDate(dateStr: string) {
   const n = ymdNorm(dateStr);
@@ -180,6 +198,16 @@ export default function ScheduleListPage() {
     return [...sched, ...leave].sort((a, b) => ymdNorm(a.beg_date).localeCompare(ymdNorm(b.beg_date)));
   }, [scheduleItems, leaveItems, yearMonth]);
 
+  const today = new Date();
+  const thisWeekStart = format(startOfWeek(today, { weekStartsOn: 1 }), "yyyyMMdd");
+  const thisWeekEnd   = format(endOfWeek(today,   { weekStartsOn: 1 }), "yyyyMMdd");
+
+  function weekOfMonth(date: Date): number {
+    const firstDow = getDay(startOfMonth(date));
+    const adjusted = firstDow === 0 ? 6 : firstDow - 1;
+    return Math.ceil((date.getDate() + adjusted) / 7);
+  }
+
   const filteredItems = useMemo(() => {
     let items = monthItems;
     if (filter === "휴가") items = items.filter((i) => i.kind === "leave");
@@ -189,16 +217,22 @@ export default function ScheduleListPage() {
       const dk = selectedDate.replace(/-/g, "");
       items = items.filter((i) => {
         const start = ymdNorm(i.beg_date);
-        const end = ymdNorm(i.end_date);
+        const end   = ymdNorm(i.end_date);
         return start <= dk && dk <= end;
+      });
+    } else {
+      items = items.filter((i) => {
+        const start = ymdNorm(i.beg_date);
+        const end   = ymdNorm(i.end_date);
+        return start <= thisWeekEnd && end >= thisWeekStart;
       });
     }
     return items;
   }, [monthItems, filter, myOnly, selectedDate, user?.emp_code]);
 
   const listTitle = selectedDate
-    ? format(new Date(`${selectedDate}T12:00:00`), "M월 d일 일정", { locale: ko })
-    : format(currentMonth, "M월 일정", { locale: ko });
+    ? format(new Date(`${selectedDate}T12:00:00`), "M월 d일 (E) 일정", { locale: ko })
+    : `${format(today, "M")}월 ${weekOfMonth(today)}주차 일정`;
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -303,26 +337,29 @@ export default function ScheduleListPage() {
             {filteredItems.length}건
           </span>
         )}
-        <div className="ml-auto flex items-center gap-1">
-          <button
-            onClick={() => setMyOnly((v) => !v)}
-            className="text-xs px-2.5 py-1 rounded-full font-medium transition-colors"
-            style={myOnly
-              ? { backgroundColor: "#60a5fa", color: "#fff", fontWeight: 700 }
-              : { backgroundColor: "#fef3c7", color: "#d97706", fontWeight: 700 }}
-          >
-            {myOnly ? "내 일정" : "전체 일정"}
-          </button>
-          {(["all", "휴가", "일정"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className="text-xs px-2.5 py-1 rounded-full font-medium transition-colors"
-              style={filter === f ? FILTER_ACTIVE[f] : FILTER_INACTIVE[f]}
-            >
-              {f === "all" ? "휴가·일정" : f}
-            </button>
-          ))}
+        <div className="ml-auto flex items-center gap-2">
+          <label className="flex items-center gap-1.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={myOnly}
+              onChange={(e) => setMyOnly(e.target.checked)}
+              className="w-4 h-4 rounded accent-blue-400 cursor-pointer"
+            />
+            <span className="text-xs font-medium text-gray-600">내 일정만</span>
+          </label>
+          <div className="w-px h-4 bg-gray-200" />
+          <div className="flex items-center gap-1">
+            {(["all", "휴가", "일정"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className="text-xs px-2.5 py-1 rounded-full font-medium transition-colors"
+                style={filter === f ? FILTER_ACTIVE[f] : FILTER_INACTIVE[f]}
+              >
+                {f === "all" ? "휴가·일정" : f}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -357,7 +394,7 @@ export default function ScheduleListPage() {
                           {item.emp_name ? <span className="text-gray-800"> · {item.emp_name}</span> : null}
                         </span>
                         {item.kind === "schedule" && item.time ? (
-                          <span className="text-xs text-gray-800 shrink-0">{item.time}</span>
+                          <span className="text-xs text-gray-800 shrink-0">{formatTimeAmPm(item.time)}</span>
                         ) : null}
                       </div>
                       <p className="text-sm text-gray-900 break-words">{item.title}</p>

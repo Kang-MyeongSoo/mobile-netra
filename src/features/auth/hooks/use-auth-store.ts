@@ -18,6 +18,7 @@ export interface AuthUser {
   emp_name: string;
   user_id: string;
   user_type: string;
+  sms_enabled: boolean;
 }
 
 export interface QuietHours {

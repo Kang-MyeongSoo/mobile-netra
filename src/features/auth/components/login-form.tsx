@@ -115,15 +115,21 @@ export function LoginForm() {
       return;
     }
 
-    // 매 로그인마다 SMS OTP 인증
     const pending: PendingAuthContext = {
       companyCode: data.companyCode,
       phoneNumber: data.phoneNumber,
       userData: result.data,
     };
+
+    // SMS 인증 비활성화 사업장: OTP 없이 바로 로그인
+    if (!result.data.sms_enabled) {
+      completeLogin(pending);
+      return;
+    }
+
+    // SMS OTP 인증
     setPendingAuth(pending);
 
-    // SMS 자동 발송
     setIsSendingCode(true);
     const smsResult = await requestSmsCode({ phoneNumber: data.phoneNumber });
     setIsSendingCode(false);
