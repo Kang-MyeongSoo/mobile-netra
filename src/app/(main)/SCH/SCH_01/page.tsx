@@ -444,8 +444,8 @@ export default function ScheduleRegisterPage() {
                 </div>
 
                 {/* 시작일 + 시작시간 */}
-                <div className="flex gap-4">
-                  <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                <div className="flex gap-2">
+                  <div className="flex flex-col gap-1.5 min-w-0 basis-2/5 shrink-0">
                     <label className="text-sm font-semibold text-gray-700">시작일 <span className="text-red-400">*</span></label>
                     <SchDatePickerField
                       value={form.beg_date}
@@ -453,7 +453,7 @@ export default function ScheduleRegisterPage() {
                       placeholder="시작일" holidayDates={holidayDates}
                     />
                   </div>
-                  <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                  <div className="flex flex-col gap-1.5 min-w-0 basis-3/5">
                     <label className="text-sm font-semibold text-gray-700">시작시간</label>
                     <HourPicker value={form.scd_time} onChange={(v) => setField("scd_time", v)} />
                   </div>
