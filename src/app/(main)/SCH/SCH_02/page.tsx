@@ -195,7 +195,7 @@ export default function ScheduleListPage() {
         key:       `leave-${i.emp_code}-${i.year_bdate}`,
       }));
 
-    return [...sched, ...leave].sort((a, b) => ymdNorm(a.beg_date).localeCompare(ymdNorm(b.beg_date)));
+    return [...sched, ...leave].sort((a, b) => ymdNorm(b.beg_date).localeCompare(ymdNorm(a.beg_date)));
   }, [scheduleItems, leaveItems, yearMonth]);
 
   const today = new Date();

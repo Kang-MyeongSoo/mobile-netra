@@ -218,7 +218,7 @@ export default function CalendarPage() {
         time: item.scd_time || undefined,
         remark: item.scd_remark || undefined,
       }));
-    return [...holidayEv, ...leaveEv, ...scheduleEv].sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+    return [...holidayEv, ...leaveEv, ...scheduleEv].sort((a, b) => b.dateStr.localeCompare(a.dateStr));
   }, [monthHolidays, myLeaveItems, mySchedules, monthPrefix]);
 
   const filteredEvents = useMemo(() => {
